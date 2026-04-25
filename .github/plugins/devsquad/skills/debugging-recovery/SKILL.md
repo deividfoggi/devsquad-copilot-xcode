@@ -1,6 +1,6 @@
 ---
 name: debugging-recovery
-description: Systematic debugging with structured triage. Use when tests fail, builds break, runtime behavior does not match expectations, or any unexpected error occurs during implementation. Do not use for planned refactoring (use code review), for test strategy (use implement agent's TDD flow), or for security-specific issues (use security-review).
+description: Systematic debugging with structured triage. Use when tests fail, builds break, runtime behavior does not match expectations, or any unexpected error occurs during implementation. Do not use for planned refactoring (use code review), for test strategy (use `test-discipline` skill), or for security-specific issues (use security-review).
 ---
 
 # Debugging and Error Recovery

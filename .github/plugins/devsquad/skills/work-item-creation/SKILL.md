@@ -13,6 +13,7 @@ Before creating ANY work item, verify:
 4. **Title in correct format**: see Title section
 5. **Body filled in**: per the platform format (see GitHub and Azure DevOps sections)
 6. **Hierarchy**: parent linked correctly
+7. **Durable descriptions**: body describes *behavior* using domain language, not implementation details (see Durability Rules below)
 
 ## AI Model Traceability
 
@@ -64,6 +65,7 @@ If any required label does not exist, create it automatically via `github/label_
 | `parallel` | `d4c5f9` |
 | `blocked` | `b60205` |
 | `copilot-candidate` | `1d76db` |
+| `needs-human` | `e4e669` |
 | `scope:cross-cutting` | `bfdadc` |
 | `scope:feature-scoped` | `bfdadc` |
 
@@ -127,7 +129,8 @@ Cache the list of existing labels to avoid repeated calls during the same creati
 |-------|-------|
 | `parallel` | Parallelizable task |
 | `blocked` | Task with unresolved dependencies |
-| `copilot-candidate` | Task delegable for autonomous execution |
+| `copilot-candidate` | Task delegable for autonomous agent execution |
+| `needs-human` | Task requiring human judgment, access, or approval |
 
 ## Title
 
@@ -153,13 +156,39 @@ Cache the list of existing labels to avoid repeated calls during the same creati
 
 **NEVER create duplicate work items.** If a similar item already exists, skip it and record it in the report.
 
-## Autonomous Delegation
+## Durability Rules
+
+Work items live longer than the code they reference. File paths, line numbers, and commit SHAs rot as the codebase evolves. Write descriptions that remain useful after major refactors.
+
+| Do | Do not |
+|---|---|
+| Describe behavior and symptoms in domain language | Reference file paths or line numbers |
+| "When a user submits a form with an expired session, the system silently drops the submission" | "In src/handlers/form.ts:247, the catch block swallows the SessionExpiredError" |
+| Reference domain concepts and user-visible outcomes | Reference internal module names, class names, or variable names |
+| Link implementation context in PRs and commits | Embed implementation details in the work item body |
+
+Implementation-specific context (file paths, code snippets, stack traces) belongs in linked PRs, commits, and comments, not in the work item description.
+
+## Autonomy Classification
+
+Classify each task to indicate whether it can be completed by an AI agent autonomously or requires human judgment.
+
+### Agent-autonomous (`copilot-candidate`)
 
 Add `copilot-candidate` to tasks that meet ALL criteria:
 - Low impact (no schema change, public API, or integration)
 - Well-defined scope (specific files, clear behavior)
 - Established pattern (follows existing code or ADR)
 - No pending architectural decisions
+
+### Human-required (`needs-human`)
+
+Add `needs-human` to tasks that meet ANY criteria:
+- Requires architectural or design judgment not covered by an ADR
+- Involves external system access, manual testing, or environment-specific verification
+- Requires stakeholder input or approval (UX decisions, business rules, compliance)
+- Touches security-sensitive code without an established pattern
+- Cross-team coordination needed
 
 ---
 

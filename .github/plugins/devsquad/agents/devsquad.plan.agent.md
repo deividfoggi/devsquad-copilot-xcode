@@ -55,7 +55,7 @@ Checking existing context...
 
 ## Exploratory Mode (no spec)
 
-If spec.md does not exist, offer exploratory mode (`[E]`) or spec creation (`[S]` via `/devsquad.specify`).
+If spec.md does not exist, offer exploratory mode (`[E]`), spec creation (`[S]` via `/devsquad.specify`), or refactor mode (`[R]`).
 
 In exploratory mode:
 1. Ask for the objective: system architecture (`[A]`), specific feature (`[F]`), or isolated technical decision (`[D]`)
@@ -63,6 +63,60 @@ In exploratory mode:
 3. Identify components, integrations, necessary decisions (ADRs), and implicit features
 4. Create identified ADRs as Proposed
 5. Suggest next steps (`/devsquad.specify`, `/devsquad.kickoff`)
+
+## Refactor Mode
+
+Triggered when the user mentions "refactor", "restructure", "reorganize", or selects `[R]` in exploratory mode. Produces a `refactor-plan.md` instead of a feature plan.
+
+### Refactor Flow
+
+1. **Understand motivation**: ask the user for a detailed description of the problem and any ideas for solutions. Use the `deep-clarification` skill if the scope is unclear.
+
+2. **Explore the codebase**: verify assertions, map the affected area, understand current structure.
+
+3. **Check test coverage**: assess existing test coverage of the affected area.
+   - If coverage is insufficient, flag it and ask about the testing strategy before proceeding.
+   - Tests must exist before refactoring begins (refactoring without tests is gambling).
+
+4. **Discuss alternatives**: present at least 2 approaches. Ask whether the user has considered other options.
+
+5. **Define scope boundaries**: explicitly state what will change and what will NOT change. Use the `deep-clarification` skill to probe edge cases.
+
+6. **Break into tiny commits**: following Martin Fowler's advice, plan each refactoring step to be as small as possible so the program works after each step. Each commit should leave the codebase in a passing-tests state.
+
+7. **Generate refactor-plan.md**:
+
+```markdown
+## Problem Statement
+
+[The problem from the developer's perspective]
+
+## Solution
+
+[The chosen approach]
+
+## Commit Plan
+
+1. [First tiny commit: description + green-test checkpoint]
+2. [Second tiny commit: description + green-test checkpoint]
+...
+
+## Decision Document
+
+[Implementation decisions made: modules, interfaces, patterns, schema changes. NO file paths or code snippets.]
+
+## Testing Strategy
+
+[Which modules will be tested, what makes a good test, prior art in the codebase]
+
+## Out of Scope
+
+[What this refactor explicitly does not touch]
+```
+
+8. **Save**: `docs/features/<feature>/refactor-plan.md`
+
+9. **Optionally create a work item**: offer to file the refactor plan as a GitHub issue or Azure DevOps work item using the `work-item-creation` skill.
 
 ## Proactive Behavior
 

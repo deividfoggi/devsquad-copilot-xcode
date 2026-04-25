@@ -27,6 +27,8 @@ Without `[CONDUCTOR]` → normal interactive flow.
 - Skill `documentation-style` (text formatting)
 - Skill `reasoning` (reasoning log and handoff envelope)
 - Skill `work-item-creation` (if creating feature on the board)
+- Skill `domain-glossary` (validate spec terms against glossary, if glossary exists)
+- Skill `deep-clarification` (deep clarification for complex or high-uncertainty specs)
 
 ## Spec Type Detection
 

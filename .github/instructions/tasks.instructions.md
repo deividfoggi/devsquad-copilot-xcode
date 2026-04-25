@@ -11,7 +11,7 @@ When editing task lists, follow these rules:
 - [P] indicates a parallelizable task.
 - Required phases: Setup, Foundational, User Stories (P1, P2, P3...), Polish.
 - Within each story: Models -> Services -> Endpoints -> Integration.
-- Each phase must be a complete and independently testable increment.
+- Each phase must be a complete and independently testable increment. The first task in each user story should be a tracer bullet: a minimal end-to-end vertical slice through all layers that proves the architecture works. Subsequent tasks fill in remaining cases, error handling, and edge cases.
 - DO NOT generate separate test tasks. Tests are part of each task's acceptance criteria — the implement agent verifies coverage upon completion.
 - Missing ADRs must be blocking tasks in the Foundational phase.
 - Task lists are re-generated scope-by-scope when the spec is amended mid-implementation (see `concepts/spec-amendment`). Only tasks derived from the amended user story or section should change; tasks outside the amended scope must be preserved verbatim, along with their completion status on the board.

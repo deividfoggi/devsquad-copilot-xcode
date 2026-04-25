@@ -30,6 +30,7 @@ Without `[CONDUCTOR]` → normal interactive flow.
 - Skill `complexity-analysis` (complexity analysis for user stories)
 - Skill `work-item-workflow` (workflow for devs)
 - Skill `board-config` (platform detection)
+- Skill `domain-glossary` (validate work item terminology against glossary, if glossary exists)
 
 ---
 
@@ -139,7 +140,8 @@ Consider the input above before proceeding (if not empty).
     - Created: X new
     - Already existed: Y
     - Linked to US: Z
-    - Copilot-candidate: C (delegatable)
+    - Copilot-candidate: C (agent-autonomous)
+    - Needs-human: H (requires human judgment)
     
     Missing ADRs:
     - Cross-cutting: A (project level)

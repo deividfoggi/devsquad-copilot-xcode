@@ -272,25 +272,12 @@ Generic responses ("ok", "go", "do it") should trigger a request for more specif
 
 3. **Bug Fix Flow**:
 
-   When the task describes a bug fix, apply mandatory test-first:
-
-   ```
-   1. Reproduce: Understand the incorrect vs expected behavior
-   2. Test first: Write a test that fails demonstrating the bug
-   3. Verify failure: Run the test and confirm it fails for the correct reason
-   4. Fix: Implement the minimal fix
-   5. Verify fix: Run the test and confirm it passes
-   ```
-
-   **Rule**: The test must fail BEFORE the fix and pass AFTER.
-   If the test already passes before the fix, the bug was not correctly reproduced. Review the test or the understanding of the problem.
-
-   If the bug is not reproducible via automated test (e.g., race condition, environment-specific), document in the commit/PR why the reproduction test is not viable and what alternative evidence proves the fix.
+   When the task describes a bug fix, apply mandatory test-first: reproduce the bug, write a test that fails demonstrating it, fix, verify the test passes. The test must fail BEFORE the fix and pass AFTER. If the bug is not reproducible via automated test, document why in the commit/PR.
 
 4. Execute implementation:
    - **Phase by phase**: Complete each phase before moving to the next
    - **Respect dependencies**: Sequential tasks in order, parallel [P] tasks can run together
-   - **Follow TDD**: Execute test tasks before corresponding implementation tasks
+   - **Test discipline**: Apply test-first or design-first-then-test per vertical slice as appropriate (consult the `test-discipline` skill)
    - **ADR compliance**: Follow documented architectural decisions
    - **Traceability**: Add comment referencing spec/task in generated code
    - **Commit per task**: After completing each task (or group of parallel [P] tasks from the same phase), commit using the `git-commit` skill before proceeding to the next task. Each commit should represent a logical, functional unit of work. **Do not accumulate all changes for a single commit at the end.**

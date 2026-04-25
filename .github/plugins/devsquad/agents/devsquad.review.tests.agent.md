@@ -28,6 +28,7 @@ Execute the detected commands and capture results:
 - Does the build compile without errors?
 - Do existing tests continue to pass?
 - Do new tests cover the spec scenarios?
+- Do tests meet quality criteria? (Consult the `test-discipline` skill: behavior-focused, public-interface-only, refactor-resistant, correct test doubles hierarchy)
 
 ### 3. Analyze Failures
 
