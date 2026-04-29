@@ -111,6 +111,42 @@ git diff --staged --name-only | grep -iE '\.(env|pem|key|credentials|secret)' &&
 
 **Never commit**: `.env`, private keys, tokens, credentials, `credentials.json`.
 
+### 3b. Integration Branch Guard
+
+Before committing, check if the current branch is the integration branch:
+
+```bash
+CURRENT_BRANCH=$(git branch --show-current)
+```
+
+Resolve the integration branch in this order:
+
+1. `Integration Branch` from `.memory/git-config.md` (if it exists)
+2. Repository default branch via `git symbolic-ref refs/remotes/origin/HEAD`
+3. Fallback: match against `main`, `master`, or `develop`
+
+If the current branch matches the integration branch:
+
+```
+You are about to commit directly to `[branch]`. Direct commits to the integration branch bypass code review and are difficult to revert safely.
+
+[B] Create a feature branch first (recommended)
+[C] Continue on [branch] (I understand the risks)
+```
+
+If the user chooses **[B]**:
+
+| Current state | Recovery action |
+|---|---|
+| Changes are staged but not committed | Run `git switch -c <feature-branch>` (preserves working tree and index) |
+| Changes are unstaged | Run `git switch -c <feature-branch>` (preserves working tree) |
+
+After switching, continue the commit flow on the new branch.
+
+If the user chooses **[C]**, proceed with the commit. Log the override in the reasoning log (if active).
+
+**Never commit to the integration branch without explicit user confirmation.**
+
 ### 4. Generate Message and Commit
 
 Every agent-generated commit **must** include the co-authorship trailer as the last `-m`:

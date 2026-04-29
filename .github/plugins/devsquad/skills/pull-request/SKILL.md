@@ -18,6 +18,40 @@ git diff --stat
 
 If there are uncommitted changes, use the `git-commit` skill to commit.
 
+## Integration Branch Guard
+
+Before pushing or creating a PR, verify the current branch is not the integration branch:
+
+```bash
+CURRENT_BRANCH=$(git branch --show-current)
+```
+
+Resolve the integration branch in this order:
+
+1. `Integration Branch` from `.memory/git-config.md` (if it exists)
+2. Repository default branch via `git symbolic-ref refs/remotes/origin/HEAD`
+3. Fallback: match against `main`, `master`, or `develop`
+
+**If the current branch matches the integration branch**, stop and offer recovery:
+
+```
+You are on `[branch]`, which is the integration branch. A PR cannot be created from the integration branch to itself, and pushing directly bypasses code review.
+
+[B] Create a feature branch from the current commit(s) and open a PR (recommended)
+[P] Push directly to [branch] (not recommended, bypasses code review)
+```
+
+If the user chooses **[B]**:
+
+| Current state | Recovery action |
+|---|---|
+| Committed locally, not pushed | Create feature branch at `HEAD`, then reset integration branch to `origin/[branch]`: `git branch <feature-branch>`, `git reset --hard origin/[branch]`, `git checkout <feature-branch>`. Confirm with the user before resetting. |
+| Already pushed to integration branch | Create feature branch from the offending commit(s), push it, offer to revert the commit on the integration branch, then open PR from the feature branch. |
+
+If the user chooses **[P]**, proceed with the push. Log the override decision.
+
+This guard applies to both the PR creation path and the Push Only path below.
+
 ## Offer PR Creation
 
 If the automated review was already executed by `devsquad.implement` (step 9 of the orchestration flow), **do not re-execute review**. Use the result already obtained.
@@ -224,6 +258,8 @@ If CI passed and reviews were approved, offer merge with options: squash, rebase
 If confirmed, use `github/merge_pull_request(owner, repo, pullNumber, merge_method: "<choice>")`.
 
 ## Push Only (no PR)
+
+The Integration Branch Guard (above) must pass before pushing. If the current branch is the integration branch, the guard offers recovery options before reaching this step.
 
 ```bash
 git push -u origin <branch-name>

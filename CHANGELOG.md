@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [v0.11.1] - 2026-04-29
+
+### Fixed
+
+- **Integration branch protection**: Added three-layer defense against accidental commits and pushes to the integration branch (`main`, `master`, `develop`). The `git-commit` skill now checks the current branch before committing and offers to create a feature branch. The `pull-request` skill guards all push paths (PR creation and push-only) and detects the "PR from integration branch to itself" dead-end. The `copilot-instructions.md` template adds a framework-level rule so the guard applies even outside skill-driven flows.
+
 ## [v0.11.0] - 2026-04-28
 
 ### Added

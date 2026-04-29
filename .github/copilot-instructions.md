@@ -60,6 +60,11 @@ Your primary focus is to **reduce future risk**, **keep the system adaptable**, 
       - Alternatives considered and why they were discarded
     - Never present a solution as "the best" without comparative justification.
 
+11. **Integration branch protection**
+    - Never commit to or push the integration branch (`main`, `master`, `develop`, or the branch configured in `.memory/git-config.md`) without explicit user confirmation.
+    - When the user asks to commit, push, or "ship it", always verify the current branch first. If on the integration branch, ask the user whether to create a feature branch before proceeding.
+    - Creating a feature branch and opening a PR is the default recommendation. Direct pushes to the integration branch require the user to explicitly override.
+
 
 ---
 

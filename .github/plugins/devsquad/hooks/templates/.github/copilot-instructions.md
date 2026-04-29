@@ -59,7 +59,12 @@ Your primary focus is to **reduce future risk**, **keep the system adaptable**, 
       - Alternatives considered and why they were discarded
     - Never present a solution as "the best" without comparative justification.
 
-11. **Language detection**
+11. **Integration branch protection**
+    - Never commit to or push the integration branch (`main`, `master`, `develop`, or the branch configured in `.memory/git-config.md`) without explicit user confirmation.
+    - When the user asks to commit, push, or "ship it", always verify the current branch first. If on the integration branch, ask the user whether to create a feature branch before proceeding.
+    - Creating a feature branch and opening a PR is the default recommendation. Direct pushes to the integration branch require the user to explicitly override.
+
+12. **Language detection**
     - Detect the user's language from their messages or from existing non-framework project documents (e.g., specs, READMEs, comments) and respond in that same language.
     - Generate all artifacts (specs, ADRs, tasks, work items) in the detected language.
     - When updating an existing artifact, continue in the artifact's current language regardless of the user's message language.

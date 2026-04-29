@@ -8,7 +8,11 @@ banner:
 
 import { Badge, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-## v0.11.0 <Badge text="Latest" variant="success" />
+## v0.11.1 <Badge text="Latest" variant="success" />
+
+- Fixed accidental pushes to integration branch: added integration branch guard to `git-commit` skill (checks before committing), `pull-request` skill (guards all push paths including PR creation), and `copilot-instructions.md` (framework-level rule). The agent now asks the user whether to create a feature branch when on `main`, `master`, or `develop`.
+
+## v0.11.0
 
 - Added skills: `test-discipline`, `deep-clarification`, `domain-glossary`, `triage-workflow`
 - Added `devsquad.triage` agent for issue intake and bug reproduction
