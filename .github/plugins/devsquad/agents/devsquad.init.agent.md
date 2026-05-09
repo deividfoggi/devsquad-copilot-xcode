@@ -66,15 +66,32 @@ You execute the workflows defined in three skills:
 
 > **CRITICAL**: You must ONLY create files listed in the Managed Files section above. NEVER create, copy, or recreate files under `.github/plugins/`. The plugin folder is managed by the VS Code Copilot Extensions system, not by this agent. Do NOT create `sdd-init.sh`, template files, agent files, skill files, or any other plugin infrastructure.
 
-### Step 0: Verify plugin installation
+### Step 0: Locate the init script
 
-Before doing anything, check that the init script exists:
+The plugin can be installed in several locations: vendored into the workspace (dev mode for this repo), exposed through `COPILOT_PLUGIN_ROOT` or `CLAUDE_PLUGIN_ROOT` by the runtime, or installed under `~/.vscode/agent-plugins/...` or `~/.copilot/agent-plugins/...`. Use the `locate-sdd-init.sh` helper to resolve `sdd-init.sh` once, then reuse the resolved absolute path in every subsequent command.
+
+Run this discovery snippet:
 
 ```bash
-test -f .github/plugins/devsquad/hooks/sdd-init.sh && echo "OK" || echo "MISSING"
+for h in \
+  .github/plugins/devsquad/hooks/locate-sdd-init.sh \
+  "${COPILOT_PLUGIN_ROOT:-}/hooks/locate-sdd-init.sh" \
+  "${CLAUDE_PLUGIN_ROOT:-}/hooks/locate-sdd-init.sh" \
+  "$HOME/.vscode/agent-plugins/github.com/microsoft/devsquad-copilot/.github/plugins/devsquad/hooks/locate-sdd-init.sh" \
+  "$HOME/.copilot/agent-plugins/github.com/microsoft/devsquad-copilot/.github/plugins/devsquad/hooks/locate-sdd-init.sh" \
+  "$HOME/.copilot/installed-plugins/devsquad-copilot/devsquad/hooks/locate-sdd-init.sh"; do
+  if [ -n "$h" ] && [ -f "$h" ]; then
+    SDD_INIT="$("$h" 2>/dev/null || true)"
+    [ -n "$SDD_INIT" ] && [ -f "$SDD_INIT" ] && { echo "FOUND: $SDD_INIT"; exit 0; }
+  fi
+done
+echo "MISSING"
+exit 1
 ```
 
-**If MISSING**: Stop and tell the user:
+Capture the absolute path printed after `FOUND:` and reuse it as `<SDD_INIT>` in every subsequent command in this session. Bash variables do not persist across tool calls, so substitute the literal path you captured rather than relying on `$SDD_INIT`.
+
+**If the snippet prints `MISSING`**: stop and tell the user:
 
 > The SDD Framework plugin is not installed or is outdated. Please install/update the `devsquad` plugin first, then run init again.
 
@@ -82,10 +99,10 @@ test -f .github/plugins/devsquad/hooks/sdd-init.sh && echo "OK" || echo "MISSING
 
 ### Step 1: Check file status
 
-Run the init script to verify all managed files:
+Run the init script to verify all managed files (substitute the absolute path resolved in Step 0):
 
 ```bash
-.github/plugins/devsquad/hooks/sdd-init.sh verify
+<SDD_INIT> verify
 ```
 
 The script returns JSON with `config` and `docs` arrays. Each entry has `file`, `status` (`up-to-date`, `outdated`, `missing`), and optionally `summary` (e.g., `+3-1` for outdated files).
@@ -107,17 +124,17 @@ Consolidate the results and present them to the user, grouped by category. For *
 > - **[D]** View diff of outdated before deciding
 > - **[E]** Choose individually
 
-If the user chooses **[D]**, run `sdd-init.sh diff <target-path>` for each outdated file and show the output.
+If the user chooses **[D]**, run `<SDD_INIT> diff <target-path>` for each outdated file and show the output.
 
 If the user passed `--force` as an argument, treat it as option **[A]** without asking.
 
 ### Step 3: Create/update files
 
-Based on the user's choice, run the appropriate script command:
+Based on the user's choice, run the appropriate script command (substitute the absolute path resolved in Step 0 for `<SDD_INIT>`):
 
-- **[C]** Create missing only: `.github/plugins/devsquad/hooks/sdd-init.sh create-missing`
-- **[A]** Create missing + update outdated: `.github/plugins/devsquad/hooks/sdd-init.sh update-all`
-- **[E]** Choose individually: `.github/plugins/devsquad/hooks/sdd-init.sh create <target-path>` for each selected file
+- **[C]** Create missing only: `<SDD_INIT> create-missing`
+- **[A]** Create missing + update outdated: `<SDD_INIT> update-all`
+- **[E]** Choose individually: `<SDD_INIT> create <target-path>` for each selected file
 
 ### Step 4: Summarize SDD files
 

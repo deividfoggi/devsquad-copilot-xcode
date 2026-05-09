@@ -168,6 +168,21 @@ docs/
 * Prefer lists and tables over long paragraphs
 * See the [documentation-style skill](.github/skills/documentation-style/SKILL.md) for complete formatting rules
 
+### Changelog
+
+The CHANGELOG follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Use the standard categories: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`.
+
+Two project-specific categories extend the standard set to make compatibility impact obvious to consumer repos:
+
+* **Breaking / Migration Required** — Behavior changes that consumers cannot ignore. Examples: an agent contract changes shape, a hook output schema bumps incompatibly, a config file moves, the lock file format changes. Each entry must describe the failure mode if the consumer does nothing and the migration step.
+* **Template changes (consumer action required)** — Edits to files distributed by `sdd-init.sh` that consumers will need to re-run `update-all` for, plus any artifact-level changes (heading renames, ID prefix shifts) that affect documents already authored from the old template.
+
+Rules:
+
+* Place these two categories above `Added` so a reader scanning the release notes sees compatibility impact first.
+* Always pair an entry under either category with a one-line "what to do" for the consumer.
+* If a release has no entries in these categories, omit them. Do not leave empty headings.
+
 ## Pull Request Process
 
 1. Confirm you have been [vouched](#vouch-system). PRs from non-vouched contributors are automatically closed.

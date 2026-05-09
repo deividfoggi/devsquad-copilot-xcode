@@ -48,6 +48,30 @@ When working with Azure DevOps work items:
 
 After PR is created, suggest the next task following the `next-task` skill.
 
+### 6. Learning Capture Checkpoint
+
+Before returning the output, evaluate whether a harness learning should be captured. Trigger conditions:
+
+- Human PR review feedback contradicts the agent's prior output (the human caught something the agent should have caught)
+- CI failed in a way that points to a missing prerequisite or test that earlier verify steps did not flag
+- The reviewer asked for a fix that matches a generic pattern likely to recur in this codebase
+
+When any trigger fires, STOP before returning output and ask the user (use `[ASK]` in conductor mode, direct dialogue otherwise):
+
+    Human PR feedback or CI revealed: [issue summary].
+    What the agent missed: [one-line description].
+    Affected scope: [files or modules].
+
+    Capture this as a harness learning so future implementations avoid the same mistake?
+
+      [Y] Yes (default)
+      [N] No - feedback was specific to this PR
+      [E] Yes, but show me the entry to edit first
+
+Default to `[Y]` if the user confirms without choosing. On `[Y]`, invoke the `harness-learnings` skill in capture mode with the feedback summary, scope, and Phase = implement (so future implement passes consult it). On `[E]`, draft the entry, surface it for edit, then capture. On `[N]`, proceed without capturing.
+
+Do not return the output structure until the checkpoint resolves. If no triggers fired, skip the prompt entirely.
+
 ## Output Format
 
 Return a structured result:
@@ -65,4 +89,4 @@ Next Task Suggestion: [task ID and title, or "none"]
 
 - This agent does NOT close issues/work items automatically. The PR uses `Closes #N` to close on merge.
 - If CI fails, provide error summary for the coordinator to decide next steps.
-- If human PR review feedback identifies a preventable issue (something the agent should have caught), capture it via the `harness-learnings` skill so future implementations avoid the same mistake.
+- When human PR feedback contradicts prior agent output (see Learning Capture Checkpoint), do not skip the user prompt; return output only after the checkpoint resolves.

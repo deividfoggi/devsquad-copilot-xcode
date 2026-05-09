@@ -194,7 +194,7 @@ Given this feature description, do the following:
        Create measurable, technology-independent outcomes
        Include both quantitative metrics (time, performance, volume) and qualitative measures (user satisfaction, task completion)
        Each criterion must be verifiable without implementation details
-    7. **Generate Compliance Criteria**
+    7. **Generate Conformance Criteria**
        For each critical scenario, create a compliance case with:
        - Specific input (test data)
        - Expected output (verifiable result)

@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+In addition to the standard Keep a Changelog categories, this project uses two
+compatibility-focused categories that always appear at the top of a release:
+
+- **Breaking / Migration Required** for behavior changes consumers cannot ignore.
+- **Template changes (consumer action required)** for edits to files distributed
+  by `sdd-init.sh` that consumers must re-run `update-all` to pick up.
+
+See `CONTRIBUTING.md` for full conventions.
+
+## [Unreleased]
+
+### Template changes (consumer action required)
+
+- **Feature spec template heading**: `## Compliance Criteria` and `### Compliance Cases` in `docs/features/TEMPLATE.md` are renamed to `## Conformance Criteria` and `### Conformance Cases` so the feature template aligns with the migration template, the spec instructions, and the rubrics. Consumers running `sdd-init.sh update-all` will see the file rewritten (a timestamped `.pre-<version>-<unix>.bak` is saved automatically). Specs already authored from the old template will keep the `Compliance` heading until their owners rename it; agents that parse for `Conformance` will not match those specs until renamed.
+- **ADR template evaluation rows**: `docs/architecture/decisions/ADR-TEMPLATE.md` no longer uses `✅ / ❌ / ⚠️` symbols. Authors are now instructed to write whether each option `meets`, `partially meets`, or `fails` each priority. Existing ADRs are not affected.
+
+### Added
+
+- **`sdd-init.sh` template provenance**: each distributed file (except the four copy-source templates that consumers duplicate per artifact) now carries a one-line provenance header recording the originating plugin version and a SHA prefix of the template body.
+- **`.github/devsquad/manifest.lock`**: tracks every managed file with `plugin_version`, `template_sha`, and `written_at`. The lock lives alongside `tool-extensions.lock` in the existing `.github/devsquad/` namespace. `sdd-init.sh verify` exposes `recorded_version` per file when a lock entry exists.
+- **`update-all --dry-run`**: previews what `sdd-init.sh update-all` would create or update without writing. The default destructive behavior is unchanged so existing automation in `devsquad.init` and the init skills continues to work.
+- **Timestamped backups on apply**: `update-all` writes `<target>.pre-<version>-<unix>.bak` before overwriting an existing file, so repeated applies within one plugin version do not collide.
+- **`version-parity.yml` workflow**: fails a PR if `.github/plugin/plugin.json`, `.github/plugins/devsquad/.github/plugin/plugin.json`, and `.github/plugin/marketplace.json` disagree on the plugin version.
+- **CHANGELOG conventions**: two new categories (`Breaking / Migration Required`, `Template changes (consumer action required)`) documented in `CONTRIBUTING.md` to make compatibility impact explicit on every release.
+
+### Changed
+
+- **`sdd-init.sh` status comparison**: `file_status()` and `cmd_diff` now strip the provenance header from both sides before comparing. Consumer repos that pre-date the header rollout still report `up-to-date` if their body matches; the first `update-all` after upgrade adds the header without flagging spurious drift.
+- **`devsquad.specify` agent step name**: a stale `Generate Compliance Criteria` step is renamed to `Generate Conformance Criteria` so the agent matches the rest of its own flow and the rubrics.
+
+### Fixed
+
+- **Work item state transitions skipped during implement**: `work-item-workflow` Phase 1 (assignee + Active) and `devsquad.implement.finalize` board update were treated as advisory and frequently skipped, leaving issues and work items in `New` through the full implement and PR cycle. Source detection in the `work-item-workflow` skill now activates board mode whenever a work item ID is reachable from the user's request, recent conversation, or tasks.md, even when the user phrases the request without an ID. Phase 1 is documented as a precondition in `devsquad.implement` (no code-editing tool runs until the task and parent user story are Active with the current user as assignee). The `devsquad.implement.finalize` worker replaces the soft "update as appropriate" instruction with an explicit state machine (`Active` on start, `Resolved` on PR open, `Closed` on merge) and reports `Board Updated: #<id> <previous> -> <new>` in its structured output so the coordinator can detect skipped transitions.
+- **Version drift**: `.github/plugin/marketplace.json` was at `0.11.0` while both `plugin.json` files were at `0.11.1`. Bumped to match.
+
 ## [v0.11.1] - 2026-04-29
 
 ### Fixed

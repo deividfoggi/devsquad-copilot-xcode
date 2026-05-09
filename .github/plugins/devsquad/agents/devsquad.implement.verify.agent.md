@@ -88,9 +88,33 @@ Findings:
 - [ID]: [Title] ([Severity]) - [Details]
 ```
 
+## Learning Capture Checkpoint
+
+Before returning the output, evaluate whether a harness learning should be captured. Trigger conditions:
+
+- A test or build prerequisite (seed script, env var, build order, fixture path) was discovered through a failed run during this verify pass
+- A test failed pointing to a missing setup step the agent had to discover before re-running successfully
+- The verdict is REGRESSION or COVERAGE_GAP and the cause is a codebase-specific pattern (not a one-time bug)
+
+When any trigger fires, STOP before returning output and ask the user (use `[ASK]` in conductor mode, direct dialogue otherwise):
+
+    Verify pass discovered: [prerequisite or pattern].
+    What this means: [one-line summary].
+    Affected scope: [test files, build files, or modules].
+
+    Capture this as a harness learning so future verify passes skip the discovery step?
+
+      [Y] Yes (default)
+      [N] No - this was specific to this run
+      [E] Yes, but show me the entry to edit first
+
+Default to `[Y]` if the user confirms without choosing. On `[Y]`, invoke the `harness-learnings` skill in capture mode with the trigger summary, scope, and Phase = verify. On `[E]`, draft the entry, surface it for edit, then capture. On `[N]`, proceed without capturing.
+
+Do not return the output structure until the checkpoint resolves. If no triggers fired, skip the prompt entirely.
+
 ## Rules
 
 - Execute only commands that already exist in the project
 - Build failures are Critical, test regressions are Major, coverage gaps are Major
 - If the test baseline already had failures, only flag NEW failures as regressions
-- If a prerequisite was discovered through trial and error (e.g., a seed script needed before tests), capture it via the `harness-learnings` skill so future sessions skip the discovery step
+- When prerequisite-discovery triggers fire (see Learning Capture Checkpoint), do not skip the user prompt; return output only after the checkpoint resolves

@@ -164,7 +164,7 @@
 - **SC-003**: [User satisfaction metric, e.g.: "90% of users successfully complete the main task on the first attempt"]
 - **SC-004**: [Business metric, e.g.: "Reduce support tickets related to [X] by 50%"]
 
-## Compliance Criteria *(required)*
+## Conformance Criteria *(required)*
 
 <!--
   Acceptance tests derived directly from the spec.
@@ -172,7 +172,7 @@
   Format: Input → Expected Output (technology-independent).
 -->
 
-### Compliance Cases
+### Conformance Cases
 
 | ID | Scenario | Input | Expected Output |
 |----|----------|-------|-----------------|
