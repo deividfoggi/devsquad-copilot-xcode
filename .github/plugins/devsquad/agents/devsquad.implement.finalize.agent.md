@@ -87,6 +87,7 @@ Next Task Suggestion: [task ID and title, or "none"]
 
 ## Rules
 
-- This agent does NOT close issues/work items automatically. The PR uses `Closes #N` to close on merge.
+- This agent does NOT close issues/work items automatically. The PR uses `Closes #N` (or `Fixes #N` / `Resolves #N`) to close on merge.
+- Before delegating PR creation to the `pull-request` skill, verify the planned body contains a closing keyword line (`Closes`, `Fixes`, or `Resolves` followed by the issue number) for every work item this PR fully resolves. `Refs #N` does not auto-close. Spike PRs that complete the spike's deliverable still require `Closes #<spike>`. Regenerate the body if the keyword is missing.
 - If CI fails, provide error summary for the coordinator to decide next steps.
 - When human PR feedback contradicts prior agent output (see Learning Capture Checkpoint), do not skip the user prompt; return output only after the checkpoint resolves.
