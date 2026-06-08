@@ -139,12 +139,36 @@ Spec drift (if any):
 - Confidence: [high | medium | low]
 ```
 
+## Learning Capture Checkpoint
+
+Before returning the output, evaluate whether a harness learning should be captured. Trigger conditions:
+
+- A test or lint failure required 2 or more correction attempts before passing
+- A code change written earlier in this session had to be reverted
+- The 2-attempt self-correction limit was hit without resolution
+
+When any trigger fires, STOP before returning output and ask the user (use `[ASK]` in conductor mode, direct dialogue otherwise):
+
+    I needed [N] correction attempts on [task or component].
+    Root cause: [one-line summary].
+    Affected scope: [files or modules].
+
+    Capture this as a harness learning so future sessions avoid the same path?
+
+      [Y] Yes (default)
+      [N] No - this was a one-time issue (typo, env, transient)
+      [E] Yes, but show me the entry to edit first
+
+Default to `[Y]` if the user confirms without choosing. On `[Y]`, invoke the `harness-learnings` skill in capture mode with the trigger summary, root cause, scope, and Phase = implement. On `[E]`, draft the entry, surface it for edit, then capture. On `[N]`, proceed without capturing.
+
+Do not return the output structure until the checkpoint resolves. If no triggers fired, skip the prompt entirely.
+
 ## Rules
 
 - Each task or [P] group should be a logical commit unit
 - Do not accumulate all changes for a single commit at the end
 - **Save-point protocol**: Commit after each passing task or [P] group. If tests fail after the next change, revert to the last committed state before investigating — do not debug on top of broken state
 - If tests fail after implementation, use the `debugging-recovery` skill: reproduce, localize, fix root cause, guard with test (max 2 attempts then escalate)
-- After a self-correction loop (test failure or lint failure that required fixes), capture a learning via the `harness-learnings` skill if the root cause was codebase-specific (not a typo or one-time error)
+- When self-correction triggers fire (see Learning Capture Checkpoint), do not skip the user prompt; return output only after the checkpoint resolves
 - Do not modify code outside the scope of the current task. If you notice issues in adjacent code, report them in the "Not touched" section
 - Report final status with work summary

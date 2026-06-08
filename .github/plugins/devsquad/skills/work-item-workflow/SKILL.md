@@ -31,8 +31,15 @@ Execute in order. If any check blocks, **STOP** and inform the user.
 | Situation | Action |
 |-----------|--------|
 | Assigned to another dev | **STOP**: "Work item already assigned to [name]." |
-| No assignee | Assign current user and inform |
+| No assignee | Assign current user (see below), then inform: "Assigned this task to you." |
 | Assigned to the current user | Proceed |
+
+When the work item has no assignee, do not skip this step. Execute the assignment before moving to the State update check:
+
+- **GitHub**: Call `github/issue_write` with `method: "update"`, the issue number, and `assignees: ["<current-user-login>"]` (the login obtained in step "Get current user").
+- **Azure DevOps**: Call `ado/wit_update_work_item` to set the `System.AssignedTo` field to the current user.
+
+If the assignment call fails (permission error, user lookup empty, API error), **STOP** and report the failure rather than silently proceeding to later checks. The downstream flow (state update, branch creation, PR linkage) assumes the work item is owned by the current user.
 
 ### 2. State update
 

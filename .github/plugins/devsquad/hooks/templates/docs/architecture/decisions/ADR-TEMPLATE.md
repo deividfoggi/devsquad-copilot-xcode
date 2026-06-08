@@ -34,18 +34,18 @@ Describe the problem or need that motivated this decision.
 [Description of the approach]
 
 **Evaluation against priorities**:
-- **[Priority 1]**: [How this option meets or fails to meet it. ✅/❌/⚠️]
-- **[Priority 2]**: [How this option meets or fails to meet it]
-- **[Priority 3]**: [How this option meets or fails to meet it]
+- **[Priority 1]**: [How this option addresses the priority. State whether it meets, partially meets, or fails the requirement, and why.]
+- **[Priority 2]**: [How this option addresses the priority.]
+- **[Priority 3]**: [How this option addresses the priority.]
 
 ### Option 2: [Name]
 
 [Description of the approach]
 
 **Evaluation against priorities**:
-- **[Priority 1]**: [How this option meets or fails to meet it. ✅/❌/⚠️]
-- **[Priority 2]**: [How this option meets or fails to meet it]
-- **[Priority 3]**: [How this option meets or fails to meet it]
+- **[Priority 1]**: [How this option addresses the priority. State whether it meets, partially meets, or fails the requirement, and why.]
+- **[Priority 2]**: [How this option addresses the priority.]
+- **[Priority 3]**: [How this option addresses the priority.]
 
 ## Decision
 

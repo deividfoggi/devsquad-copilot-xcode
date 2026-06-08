@@ -194,6 +194,38 @@ Create PR with:
   - [ ] Code follows project standards
   - [ ] Documentation updated (if needed)
   ```
+
+### Closing keyword rules (do not skip)
+
+The PR body **must** include one of GitHub's recognized closing keywords on its own line for every work item the PR fully resolves. Only these keywords trigger automatic close on merge: `close`, `closes`, `closed`, `fix`, `fixes`, `fixed`, `resolve`, `resolves`, `resolved`. `Refs #N` and `See #N` are read-only and do **not** close anything.
+
+| Situation | Use | Example |
+|---|---|---|
+| PR fully implements/resolves a tracked task, story, bug, or spike | `Closes #N` (one per resolved item, on its own line) | `Closes #11` |
+| PR contributes to a parent feature, epic, or related issue but does not close it | `Refs #N` | `Refs #1` |
+| PR partially addresses an issue and intentionally leaves follow-up | `Refs #N` plus a "Remaining work" note in the body | `Refs #11` + `Remaining: …` |
+
+Examples that work and examples that silently break:
+
+```markdown
+# Works (issues #11 and #29 auto-close on merge; #1 stays open as parent)
+Closes #11
+Closes #29
+Refs #1
+
+# Silently broken (#11 and #29 stay open)
+Refs #11 #29 #1
+```
+
+Spike PRs are not exempt: if the spike's deliverable is complete, `Closes #<spike>` is required. Use `Refs` only when the spike is intentionally incomplete and the issue should remain open for follow-up.
+
+### Pre-flight check
+
+Before calling `github/create_pull_request` or `ado/repo_pull_request_write`, verify:
+
+1. Identify every work item the PR resolves (typically: the task or story the implementation was started from, plus any sub-issues fully delivered in this branch).
+2. For each resolved item, confirm a `Closes #N`, `Fixes #N`, or `Resolves #N` line exists on its own line in the body.
+3. If any resolved item is missing its closing keyword (or only appears under `Refs`), regenerate the body before creating the PR.
 - **Labels**: Inherit labels from the issue (feature, priority, etc.)
 
 Use the platform-appropriate tool:

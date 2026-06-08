@@ -16,6 +16,29 @@ that knowledge should persist so the next session starts smarter.
 This skill has two modes: **capture** (write a learning) and **consult** (read
 learnings relevant to the current task).
 
+## How This Skill Is Invoked
+
+Capture is auto-prompted by the lifecycle agents at trigger moments where the
+agent has likely done something that future sessions should know about. The
+auto-prompt sites are:
+
+- `devsquad.implement.execute` after self-correction loops (2+ correction
+  attempts, reverts of own work, max-attempt exhaustion)
+- `devsquad.implement.verify` after discovering a test or build prerequisite
+  through a failed run
+- `devsquad.review.code` after producing Major or Critical findings that match
+  a codebase-specific pattern
+- `devsquad.implement.finalize` after human PR feedback contradicts prior agent
+  output, or CI fails on a missing prerequisite
+
+At each trigger, the calling agent surfaces a `[Y] / [N] / [E]` prompt before
+returning its output. Default is `[Y]` to capture. The user can also invoke
+this skill explicitly at any time ("add this as a learning", "capture this as
+a learning"); the skill runs in capture mode without a trigger.
+
+Consult is automatic at the start of `implement.execute`, `implement.verify`,
+and `review.code` (see "When to Consult" below).
+
 ---
 
 ## 1. Capture: Record a Learning

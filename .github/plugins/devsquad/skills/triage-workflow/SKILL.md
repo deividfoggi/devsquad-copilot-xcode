@@ -36,6 +36,12 @@ Every issue should have exactly **one** state label. If conflicting state labels
 
 Only these transitions are valid. Flag unusual transitions.
 
+## Content Style
+
+Triage notes, agent briefs, summaries, comments, and any label-driven artifacts written to the board follow the Content Style rules in the `work-item-creation` skill: no emojis or decorative Unicode, no em-dash or hyphen as separator between concepts, never `#<number>` in free text (Azure DevOps auto-links it), no contrastive framing, direct active voice, no promotional language, short concrete prose.
+
+When this skill writes any content to GitHub or Azure DevOps (state-change comments, agent briefs, info requests), apply those rules before sending.
+
 ## Platform Adaptation
 
 ### GitHub Issues

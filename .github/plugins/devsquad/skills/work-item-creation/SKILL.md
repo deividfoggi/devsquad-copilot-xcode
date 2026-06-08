@@ -14,6 +14,23 @@ Before creating ANY work item, verify:
 5. **Body filled in**: per the platform format (see GitHub and Azure DevOps sections)
 6. **Hierarchy**: parent linked correctly
 7. **Durable descriptions**: body describes *behavior* using domain language, not implementation details (see Durability Rules below)
+8. **Content style**: title and body follow the Content Style section below
+
+## Content Style
+
+Work items live on the board, get rendered in GitHub/ADO UIs, and are read by humans and agents long after creation. Apply these rules to **every** title, description, comment, and acceptance criterion.
+
+| Rule | Why | Example to avoid |
+|---|---|---|
+| No emojis or decorative Unicode (e.g., →, •, ★, ✓, 🎯, ✅, ⚠️, ❌) | Renders inconsistently across boards, screen readers, and exports | `🎯 Goal: ship X` |
+| No em-dash (—), en-dash (–), or hyphen as separator between concepts | Ambiguous in titles, breaks search, often AI-generated tell. Rewrite the sentence. | `Auth flow — refactor` → `Refactor auth flow` |
+| Never use `#<number>` in free text | Azure DevOps auto-converts to a work item link, breaking references and creating wrong cross-links. Use "first", "third option", or rephrase. | `#1 priority` → `top priority` |
+| No contrastive constructions ("not just X, it's Y", "more than just", "goes beyond") | Generic AI framing that adds words without information | `This is not just a fix, it's a rethink` → `Replace the retry logic` |
+| Direct active voice, no rhetorical questions | Work items are commands or descriptions, not essays | `What if we cached responses? We should cache them.` → `Cache responses for 60 seconds` |
+| No promotional or exaggerated language | Work items track work, not pitch it | `seamless`, `revolutionary`, `world-class` |
+| Keep titles short and concrete; bodies focused on observable behavior | Titles surface in lists; bodies are read once during planning and again during review | See Durability Rules for body content rules |
+
+These rules apply to content sent to GitHub Issues, Azure DevOps work items, board comments, PR descriptions written from a work item, and triage artifacts. They do not replace the markdown rules in the `documentation-style` skill, which still govern files under `docs/**/*.md`.
 
 ## AI Model Traceability
 

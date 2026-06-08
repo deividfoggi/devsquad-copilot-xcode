@@ -1,0 +1,43 @@
+name: Version Parity
+
+on:
+  pull_request:
+    paths:
+      - '.github/plugin/plugin.json'
+      - '.github/plugin/marketplace.json'
+      - '.github/plugins/devsquad/.github/plugin/plugin.json'
+      - '.github/workflows/version-parity.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/plugin/plugin.json'
+      - '.github/plugin/marketplace.json'
+      - '.github/plugins/devsquad/.github/plugin/plugin.json'
+
+jobs:
+  check-version-parity:
+    name: Check plugin version parity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compare versions across manifests
+        run: |
+          set -euo pipefail
+
+          ROOT_PLUGIN=$(jq -r '.version' .github/plugin/plugin.json)
+          INNER_PLUGIN=$(jq -r '.version' .github/plugins/devsquad/.github/plugin/plugin.json)
+          MARKETPLACE=$(jq -r '.plugins[] | select(.name == "devsquad") | .version' .github/plugin/marketplace.json)
+
+          echo "Root plugin.json:        ${ROOT_PLUGIN}"
+          echo "Inner plugin.json:       ${INNER_PLUGIN}"
+          echo "Marketplace devsquad:    ${MARKETPLACE}"
+
+          if [ "${ROOT_PLUGIN}" != "${INNER_PLUGIN}" ] || [ "${ROOT_PLUGIN}" != "${MARKETPLACE}" ]; then
+            echo ""
+            echo "Version mismatch detected. All three sources must agree."
+            echo "Bump every file together and update CHANGELOG.md."
+            exit 1
+          fi
+
+          echo "All three sources agree on ${ROOT_PLUGIN}."

@@ -68,6 +68,29 @@ Codebase Consistency Table:
 | Duplication | PASS/FAIL | [observation] |
 ```
 
+## Learning Capture Checkpoint
+
+Before returning findings, evaluate whether a harness learning should be captured. Trigger conditions:
+
+- Any finding classified Major or Critical that represents a codebase-specific pattern (not generic code quality)
+- A finding extends or contradicts an existing learning (overlapping Scope, related Pattern)
+
+When any trigger fires, STOP before returning output and ask the user (use `[ASK]` in conductor mode, direct dialogue otherwise):
+
+    Major/Critical finding: [title].
+    Pattern detected: [one-line description].
+    Affected scope: [files or modules].
+
+    Capture this as a harness learning so future reviews check proactively?
+
+      [Y] Yes (default)
+      [N] No - finding is specific to this diff
+      [E] Yes, but show me the entry to edit first
+
+Default to `[Y]` if the user confirms without choosing. On `[Y]`, invoke the `harness-learnings` skill in capture mode with the finding summary, pattern, scope, and Phase = review. On `[E]`, draft the entry, surface it for edit, then capture. On `[N]`, proceed without capturing.
+
+Do not return the output structure until the checkpoint resolves. If no triggers fired, skip the prompt entirely.
+
 ## Rules
 
 - Compare against existing codebase patterns, not personal preferences.
@@ -75,4 +98,4 @@ Codebase Consistency Table:
 - Do not flag style issues already handled by linters/formatters.
 - Do not inflate severity. Minor is minor, even if it is "ugly".
 - Apply Chesterton's Fence: before flagging code for removal or simplification, verify why it exists (check git blame if needed). Do not recommend removing code you do not fully understand.
-- After producing findings, if any Major or Critical finding represents a codebase-specific pattern (not a generic code quality issue), capture it via the `harness-learnings` skill so future reviews check proactively.
+- When Major or Critical findings are produced (see Learning Capture Checkpoint), do not skip the user prompt; return output only after the checkpoint resolves.

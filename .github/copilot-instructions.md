@@ -187,6 +187,14 @@ Rules:
 Config and documentation templates are managed deterministically by `sdd-init.sh` from `.github/plugins/devsquad/hooks/templates/`.
 Community files (`SECURITY.md`, `CONTRIBUTING.md`, `LICENSE`, `CODE_OF_CONDUCT.md`) are sourced from `docs/templates/` by the `init-scaffold` skill.
 
+Provenance and lock file:
+
+- Each distributed file (except per-artifact copy-source templates) carries a one-line provenance header: `<!-- devsquad-template: <path> v<version> sha=<sha-12> -->` for markdown, `# devsquad-template: <path> v<version> sha=<sha-12>` for YAML.
+- The four copy-source templates (`docs/features/TEMPLATE.md`, `docs/migrations/TEMPLATE.md`, `docs/envisioning/TEMPLATE.md`, `docs/architecture/decisions/ADR-TEMPLATE.md`) do not receive an inline header so the comment does not leak into authored documents. Their provenance is recorded only in the lock file.
+- Consumer repos get a `.github/devsquad/manifest.lock` (JSON) listing every managed target with `plugin_version`, `template_sha`, and `written_at`.
+- `update-all` is destructive by default for compatibility with existing init flows. Pass `--dry-run` to preview changes without writing. On apply, the script writes a timestamped backup `<target>.pre-<version>-<unix>.bak` before overwriting.
+- `file_status()` strips the provenance header from both sides before comparing, so consumer repos that pre-date the header rollout do not see spurious drift on first upgrade.
+
 When editing templates:
 
 - Update the file in `.github/plugins/devsquad/hooks/templates/` (the source of truth for config and docs templates).

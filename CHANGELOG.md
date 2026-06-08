@@ -5,6 +5,92 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+In addition to the standard Keep a Changelog categories, this project uses two
+compatibility-focused categories that always appear at the top of a release:
+
+- **Breaking / Migration Required** for behavior changes consumers cannot ignore.
+- **Template changes (consumer action required)** for edits to files distributed
+  by `sdd-init.sh` that consumers must re-run `update-all` to pick up.
+
+See `CONTRIBUTING.md` for full conventions.
+
+## [Unreleased]
+
+### Added (Agent Intent Governance — selective Architecture of Intent adoption)
+
+Closes three structural gaps in the framework: framework agents had no explicit behavioral envelope (a reviewer reading `devsquad.implement.agent.md` could not determine in under a minute what the agent was authorized to do, must never do, or how it composes sub-agents); consumer specs describing AI capabilities had no canonical fragment for operational cost commitments; the failure-diagnosis surface had no taxonomy mapping a failure to the upstream artifact that owns the fix. Vocabulary and discipline drawn from "The Architecture of Intent" by Marcel Aldecoa (`https://marcelaldecoa.github.io/TheArchitectureOfIntent/`). The framework adopts the load-bearing principles and deliberately omits parts of the source vocabulary that add no behavior (see "AoI constructs considered and not adopted" in ADR 0014).
+
+**Agent body conventions:**
+
+- `## Behavioral Constraints` body section on 7 user-facing agents (`devsquad`, `devsquad.implement`, `devsquad.plan`, `devsquad.review`, `devsquad.refine`, `devsquad.specify`, `devsquad.decompose`). Captures rules the runtime `tools:` array cannot enforce (for example, "never APPROVE on a PR", "never commits to integration branch"). Worker sub-agents (`*.execute`, `*.verify`, `*.finalize`, `*.validate`, `*.context`, `*.architecture`, `*.design`, `*.code`, `*.tests`, `*.spec`, `*.adr`, `*.security`, `*.artifacts`, `*.health`) carry no manifest; they inherit their envelope from the parent's composition declaration and from their own `description:` frontmatter, which the runtime surfaces at invocation time.
+- `## Composition` body section on 4 coordinator agents (`devsquad.implement`, `devsquad.plan`, `devsquad.review`, `devsquad.refine`). Declares load-bearing cross-component invariants between the coordinator and its typed sub-agents (for example, `validate` runs before `execute` for Medium and High impact tasks; `plan.context` runs before `plan.architecture` and `plan.design`; the parent never downgrades a sub-Guardian's severity finding).
+
+**Template changes (consumer action required):**
+
+- **Feature spec template** (`docs/features/TEMPLATE.md`):
+  - New `Spec Evolution Log` section. Required on every spec, with at least one row at creation time. Each amendment adds a row with version, date, change summary, trigger, and author. Trigger values include `failure (spec)`, `failure (validation)`, `failure (agent)`, plus `new work`, `drift`, `external constraint`, or `other (<short reason>)`.
+  - New `Describes AI capability: yes | no` field in the Executive Summary.
+  - New gated `## AI Cost Posture` section, required only when `Describes AI capability` is `yes`. Five fields: model-tier commitment (Reasoning / Frontier / Mid / Fast per AI step, with one-line rationale), latency budget (p50, p95, p99, behavior on breach), prompt-stability invariant, per-call cost ceiling, cost-incident escalation. Author-facing comment block includes a tier reference (capability profile and typical use per tier) and an N/A pattern for runtime-managed scenarios where the platform picks the model. Non-AI specs see no AI-specific structure.
+- **Migration spec template** (`docs/migrations/TEMPLATE.md`):
+  - New `Spec Evolution Log` section, same shape as the feature template.
+- **Spec instruction files** (`.github/instructions/specs.instructions.md`, `.github/instructions/migration-specs.instructions.md`):
+  - New rule requiring the Spec Evolution Log and the three valid `failure (<category>)` trigger values.
+  - Feature spec rule additionally requires `Describes AI capability: yes | no` in the Executive Summary and a complete `AI Cost Posture` section when `yes`.
+- **Spec quality rubrics** (`rubrica-spec.md`, `rubrica-migration-spec.md`): new criterion checking presence of Spec Evolution Log; feature rubric additionally checks AI Cost Posture completeness when the gate is `yes`.
+
+Consumers running `sdd-init.sh update-all` after upgrading will see these files rewritten (a timestamped `.pre-<version>-<unix>.bak` is saved automatically). Existing specs authored from the previous template remain valid; the Spec Evolution Log and Executive Summary additions are additive and not retroactive.
+
+**Failure-diagnosis surface:**
+
+- `failure-taxonomy.md` reference file added to the `debugging-recovery` skill. Three-category upstream-artifact principle: `failure (spec)` (artifact: `spec.md`, ADR, glossary, or Non-Scope section), `failure (validation)` (artifact: conformance criteria, tests, or rubric file), `failure (agent)` (artifact: agent file body or `agents:` frontmatter, composition declaration, MCP/tool config, or handoff). One worked example shows the spec-vs-validation distinction end-to-end (silent empty-email field in a signup flow).
+- `debugging-recovery/SKILL.md` Failure Source Classification step routes agent-originated failures into the three categories before triage.
+- `quality-gate/SKILL.md` Recording Failure-Driven Amendments uses the same three categories as canonical Spec Evolution Log trigger values.
+- `devsquad.refine.agent.md` Exception gate references the three categories when classifying findings.
+
+**Architecture Decision Record:**
+
+- ADR 0014 "Agent Intent Governance" added at `docs/framework/decisions/0014-agent-intent-governance.md`. Records the structural gaps, the five ranked priorities, the three options considered (full AoI adoption rejected; selective adoption adopted; status quo rejected), the adopted scope (four constructs above), and the AoI constructs considered and explicitly not adopted (custom frontmatter scalars, Reversibility tier, Pattern A/B/C/D/E composition taxonomy, seven-category failure taxonomy, standalone authoring handbook, AoI signal metrics, phase rename).
+- ADR list page (`docs/src/content/docs/decisions/index.mdx`) includes ADR 0014 in the published decisions index.
+
+### Not adopted from AoI
+
+The source vocabulary in "The Architecture of Intent" includes constructs this release deliberately omits because they add documentation surface without changing what the framework does in response. The reasoning for each is recorded in ADR 0014 under "AoI constructs considered and not adopted in this option":
+
+- Custom frontmatter scalars (`archetype`, `agency_level`, `autonomy`, `responsibility`, `reversibility`, `oversight_model`).
+- Reversibility tier (R1-R4) on spec templates.
+- AoI Pattern A/B/C/D/E composition taxonomy labels.
+- Seven-category failure taxonomy (collapsed to three).
+- Standalone `agent-conventions.md` distributed handbook.
+- AoI signal metrics, running scenarios, phase rename.
+
+## [v0.12.0] - 2026-05-09
+
+### Template changes (consumer action required)
+
+- **Feature spec template heading**: `## Compliance Criteria` and `### Compliance Cases` in `docs/features/TEMPLATE.md` are renamed to `## Conformance Criteria` and `### Conformance Cases` so the feature template aligns with the migration template, the spec instructions, and the rubrics. Consumers running `sdd-init.sh update-all` will see the file rewritten (a timestamped `.pre-<version>-<unix>.bak` is saved automatically). Specs already authored from the old template will keep the `Compliance` heading until their owners rename it; agents that parse for `Conformance` will not match those specs until renamed.
+- **ADR template evaluation rows**: `docs/architecture/decisions/ADR-TEMPLATE.md` no longer uses `✅ / ❌ / ⚠️` symbols. Authors are now instructed to write whether each option `meets`, `partially meets`, or `fails` each priority. Existing ADRs are not affected.
+
+### Added
+
+- **`sdd-init.sh` template provenance**: each distributed file (except the four copy-source templates that consumers duplicate per artifact) now carries a one-line provenance header recording the originating plugin version and a SHA prefix of the template body.
+- **`.github/devsquad/manifest.lock`**: tracks every managed file with `plugin_version`, `template_sha`, and `written_at`. The lock lives alongside `tool-extensions.lock` in the existing `.github/devsquad/` namespace. `sdd-init.sh verify` exposes `recorded_version` per file when a lock entry exists.
+- **`update-all --dry-run`**: previews what `sdd-init.sh update-all` would create or update without writing. The default destructive behavior is unchanged so existing automation in `devsquad.init` and the init skills continues to work.
+- **Timestamped backups on apply**: `update-all` writes `<target>.pre-<version>-<unix>.bak` before overwriting an existing file, so repeated applies within one plugin version do not collide.
+- **`version-parity.yml` workflow**: fails a PR if `.github/plugin/plugin.json`, `.github/plugins/devsquad/.github/plugin/plugin.json`, and `.github/plugin/marketplace.json` disagree on the plugin version.
+- **CHANGELOG conventions**: two new categories (`Breaking / Migration Required`, `Template changes (consumer action required)`) documented in `CONTRIBUTING.md` to make compatibility impact explicit on every release.
+
+### Changed
+
+- **`sdd-init.sh` status comparison**: `file_status()` and `cmd_diff` now strip the provenance header from both sides before comparing. Consumer repos that pre-date the header rollout still report `up-to-date` if their body matches; the first `update-all` after upgrade adds the header without flagging spurious drift.
+- **`devsquad.specify` agent step name**: a stale `Generate Compliance Criteria` step is renamed to `Generate Conformance Criteria` so the agent matches the rest of its own flow and the rubrics.
+
+### Fixed
+
+- **Work item state transitions skipped during implement**: `work-item-workflow` Phase 1 (assignee + Active) and `devsquad.implement.finalize` board update were treated as advisory and frequently skipped, leaving issues and work items in `New` through the full implement and PR cycle. Source detection in the `work-item-workflow` skill now activates board mode whenever a work item ID is reachable from the user's request, recent conversation, or tasks.md, even when the user phrases the request without an ID. Phase 1 is documented as a precondition in `devsquad.implement` (no code-editing tool runs until the task and parent user story are Active with the current user as assignee). The Assignee check in `work-item-workflow` now names the exact MCP calls (`github/issue_write` with `method: update` and `assignees`, or `ado/wit_update_work_item` with `System.AssignedTo`) and stops on assignment failure rather than silently proceeding. The `devsquad.implement.finalize` worker replaces the soft "update as appropriate" instruction with an explicit state machine (`Active` on start, `Resolved` on PR open, `Closed` on merge) and reports `Board Updated: #<id> <previous> -> <new>` in its structured output so the coordinator can detect skipped transitions.
+- **Harness learnings rarely captured automatically**: `harness-learnings` capture was specified as passive bullets in `implement.execute`, `implement.verify`, `review.code`, and `implement.finalize`, conditioned on a "codebase-specific" judgment call, so the agent typically skipped capture unless the user explicitly asked. Each agent now has a `Learning Capture Checkpoint` step with concrete numeric triggers (2+ correction attempts, REGRESSION/COVERAGE_GAP verdict, Major/Critical findings, contradicted human PR feedback) and surfaces a `[Y]/[N]/[E]` prompt (default `[Y]`) before returning output. The skill itself now documents the four auto-prompt sites in a `How This Skill Is Invoked` section.
+- **PR body silently failed to auto-close issues**: the `pull-request` skill template showed `Closes #[number]` as a placeholder without explaining that the keyword itself is what triggers GitHub's `closingIssuesReferences`. Spike PRs and PRs authored with `Refs #N` (instead of one of the magic keywords `close/closes/closed/fix/fixes/fixed/resolve/resolves/resolved`) merged cleanly but left the resolved issue open, requiring manual close and board correction. The `pull-request` skill now lists the recognized keywords, distinguishes resolved (`Closes`) from referenced (`Refs`), spells out the spike-PR case, and adds a pre-flight check that verifies the body contains a closing keyword for every work item the PR resolves before calling `github/create_pull_request` or `ado/repo_pull_request_write`. The `devsquad.implement.finalize` worker requires the same pre-flight verification before delegating to the skill.
+- **Version drift**: `.github/plugin/marketplace.json` was at `0.11.0` while both `plugin.json` files were at `0.11.1`. Bumped to match.
+
 ## [v0.11.1] - 2026-04-29
 
 ### Fixed
